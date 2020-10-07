@@ -19,6 +19,7 @@ function color_f (depth) {
 }
 
 function createMap(eqData) {
+  console.log(eqData[0])
 
   // Define streetmap and darkmap layers
   var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
@@ -57,22 +58,24 @@ function createMap(eqData) {
     var lat = eq.geometry.coordinates[1];
     var lng = eq.geometry.coordinates[0];
     var depth = eq.geometry.coordinates[2];
+    var title = eq.properties.title;
     //console.log(depth);
 	  return L.circle([lat,lng], {
-		  color: "white",
+		  color: color_f (depth),
       fillColor: color_f (depth),
-      radius: mag * 1000
-    });
+      radius: Math.abs(mag) * 2500
+    }).bindPopup(title);
   });
+  var eq_circles =  L.layerGroup(eqData);
   var myMap = L.map("map", {
     center: [
       32.7157, -117.1611
     ],
     zoom: 10,
-    layers: [streetmap]
+    layers: [streetmap, eq_circles]
   });
   var overlayMaps = {
-    "earthquakes": L.layerGroup(eqData)
+    "earthquakes": eq_circles
   };
   L.control.layers(baseMaps, overlayMaps).addTo(myMap);
 }
