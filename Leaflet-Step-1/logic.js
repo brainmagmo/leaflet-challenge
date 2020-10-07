@@ -78,4 +78,24 @@ function createMap(eqData) {
     "earthquakes": eq_circles
   };
   L.control.layers(baseMaps, overlayMaps).addTo(myMap);
+
+  var legend = L.control({position: 'bottomright'});
+
+  legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+        grades = [-10, 0, 5, 10],
+        labels = ["Depth"];
+
+    // loop through our density intervals and generate a label with a colored square for each interval
+    for (var i = 0; i < grades.length; i++) {
+        div.innerHTML +=
+            '<i style="background:' + color_f(grades[i]) + '">' +
+            '...</i>' +grades[i]+ 'km below ground'+ '<br>';
+    }
+
+    return div;
+  };
+
+  legend.addTo(myMap);
 }
