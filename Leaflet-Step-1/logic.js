@@ -6,8 +6,16 @@ d3.json(queryUrl, function(data) {
   createMap(data.features);
 });
 
-function color_f (depth, range) {
-  return "black";
+function color_f (depth) {
+  if(depth < 0) {
+    return "white";
+  } else if (depth < 5) {
+    return "gray";
+  } else if (depth < 10) {
+    return "black";
+  } else { 
+    return "red";
+  }
 }
 
 function createMap(eqData) {
@@ -38,31 +46,33 @@ function createMap(eqData) {
   // Create overlay object to hold our overlay layer
 
   // Create our map, giving it the streetmap and earthquakes layers to display on load
-  var myMap = L.map("map", {
-    center: [
-      32.7157, -117.1611
-    ],
-    zoom: 10,
-    layers: [streetmap, eqData]
-  });
+
 
   // Create a layer control
   // Pass in our baseMaps and overlayMaps
   // Add the layer control to the map
 
-  eqData.forEach(eq => {
+  eqData = eqData.map(function(eq) {
     var mag = eq.properties.mag;
     var lat = eq.geometry.coordinates[1];
     var lng = eq.geometry.coordinates[0];
-    //var depth = eq.geometry.coordinates[2];
-
-      L.circle([lat,lng], {
-        
-        color: "white",
-        fillColor: "black",
-        radius: mag * 10
-    }).addTo(myMap);
+    var depth = eq.geometry.coordinates[2];
+    //console.log(depth);
+	  return L.circle([lat,lng], {
+		  color: "white",
+      fillColor: color_f (depth),
+      radius: mag * 1000
+    });
   });
-
-  eqData.addTo(myMap);
+  var myMap = L.map("map", {
+    center: [
+      32.7157, -117.1611
+    ],
+    zoom: 10,
+    layers: [streetmap]
+  });
+  var overlayMaps = {
+    "earthquakes": L.layerGroup(eqData)
+  };
+  L.control.layers(baseMaps, overlayMaps).addTo(myMap);
 }
